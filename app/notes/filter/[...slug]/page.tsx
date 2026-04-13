@@ -1,7 +1,6 @@
 import Link from 'next/link';
 
-import NoteList from '@/components/NoteList/NoteList';
-import Pagination from '@/components/Pagination/Pagination';
+import NotesClient from './Notes.client';
 import SearchBox from '@/components/SearchBox/SearchBox';
 import { getErrorMessage } from '@/lib/api/client';
 import { fetchNotes } from '@/lib/api/fetchNotes';
@@ -60,24 +59,13 @@ export default async function FilteredNotesPage({
     });
 
     return (
-      <div className={css.app}>
-        <div className={css.toolbar}>
-          <SearchBox initialValue={search} />
-          <Link href="/notes/action/create" className={css.button}>
-            Create note +
-          </Link>
-        </div>
-        <NoteList
-          notes={data.notes}
-          emptyMessage={`No notes found for the ${tag} filter.`}
-        />
-        <Pagination
-          currentPage={data.page ?? currentPage}
-          totalPages={data.totalPages}
-          pathname={`/notes/filter/${slug.join('/')}`}
-          search={search}
-        />
-      </div>
+      <NotesClient
+        data={data}
+        currentPage={currentPage}
+        pathname={`/notes/filter/${slug.join('/')}`}
+        search={search}
+        tag={tag}
+      />
     );
   } catch (error) {
     return (

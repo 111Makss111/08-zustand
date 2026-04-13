@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 
+import NotePreviewClient from '@/app/@modal/(.)notes/[id]/NotePreview.client';
 import Modal from '@/components/Modal/Modal';
-import NotePreview from '@/components/NotePreview/NotePreview';
 import { isNotFoundError } from '@/lib/api/client';
 import { fetchNoteById } from '@/lib/api/fetchNoteById';
 
@@ -21,7 +21,7 @@ export default async function InterceptedNotePage({
 
     return (
       <Modal fallbackHref="/notes">
-        <NotePreview
+        <NotePreviewClient
           note={note}
           backHref={`/notes/${id}`}
           backLabel="Open full page"

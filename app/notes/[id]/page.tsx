@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 
-import NotePreview from '@/components/NotePreview/NotePreview';
+import NoteDetailsClient from './NoteDetails.client';
 import { fetchNoteById } from '@/lib/api/fetchNoteById';
 import { isNotFoundError } from '@/lib/api/client';
 import { buildPageMetadata, createNoteExcerpt } from '@/lib/metadata';
@@ -41,11 +41,7 @@ export default async function NoteDetailsPage({
   try {
     const note = await fetchNoteById(id);
 
-    return (
-      <main className={css.main}>
-        <NotePreview note={note} />
-      </main>
-    );
+    return <NoteDetailsClient note={note} />;
   } catch (error) {
     if (isNotFoundError(error)) {
       notFound();
