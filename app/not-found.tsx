@@ -1,10 +1,11 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { buildPageMetadata } from '@/lib/metadata';
 
 import css from './Home.module.css';
 
-export const metadata = buildPageMetadata({
+export const metadata: Metadata = buildPageMetadata({
   title: 'Page not found',
   description:
     'The requested NoteHub page does not exist. Please return to the homepage or the notes list.',

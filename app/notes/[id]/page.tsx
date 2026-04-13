@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import NoteDetailsClient from './NoteDetails.client';
@@ -13,7 +14,9 @@ type NoteDetailsPageProps = {
   }>;
 };
 
-export async function generateMetadata({ params }: NoteDetailsPageProps) {
+export async function generateMetadata({
+  params,
+}: NoteDetailsPageProps): Promise<Metadata> {
   const { id } = await params;
 
   try {

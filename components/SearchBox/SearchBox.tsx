@@ -7,19 +7,36 @@ import css from './SearchBox.module.css';
 
 interface SearchBoxProps {
   initialValue?: string;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
-export default function SearchBox({ initialValue = '' }: SearchBoxProps) {
+export default function SearchBox({
+  initialValue = '',
+  value,
+  onChange,
+}: SearchBoxProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [value, setValue] = useState(initialValue);
-  const deferredValue = useDeferredValue(value);
+  const isControlled =
+    typeof value === 'string' && typeof onChange === 'function';
+  const [internalValue, setInternalValue] = useState(initialValue);
+  const deferredValue = useDeferredValue(internalValue);
+  const resolvedValue = isControlled ? value : internalValue;
 
   useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
+    if (isControlled) {
+      return;
+    }
+
+    setInternalValue(initialValue);
+  }, [initialValue, isControlled]);
 
   useEffect(() => {
+    if (isControlled) {
+      return;
+    }
+
     const normalizedValue = deferredValue.trim();
 
     if (normalizedValue === initialValue) {
@@ -37,15 +54,22 @@ export default function SearchBox({ initialValue = '' }: SearchBoxProps) {
     router.replace(nextUrl, {
       scroll: false,
     });
-  }, [deferredValue, initialValue, pathname, router]);
+  }, [deferredValue, initialValue, isControlled, pathname, router]);
 
   return (
     <input
       type="text"
       className={css.input}
       placeholder="Search notes"
-      value={value}
-      onChange={(event) => setValue(event.target.value)}
+      value={resolvedValue}
+      onChange={(event) => {
+        if (isControlled) {
+          onChange(event.target.value);
+          return;
+        }
+
+        setInternalValue(event.target.value);
+      }}
     />
   );
 }

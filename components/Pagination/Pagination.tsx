@@ -5,8 +5,9 @@ import css from './Pagination.module.css';
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
-  pathname: string;
+  pathname?: string;
   search?: string;
+  onPageChange?: (page: number) => void;
 }
 
 export default function Pagination({
@@ -14,6 +15,7 @@ export default function Pagination({
   totalPages,
   pathname,
   search = '',
+  onPageChange,
 }: PaginationProps) {
   if (totalPages <= 1) {
     return null;
@@ -22,6 +24,10 @@ export default function Pagination({
   const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
 
   const createPageHref = (page: number) => {
+    if (!pathname) {
+      return '#';
+    }
+
     const params = new URLSearchParams();
 
     if (search) {
@@ -43,9 +49,15 @@ export default function Pagination({
     <ul className={css.pagination}>
       {pages.map((page) => (
         <li key={page} className={page === currentPage ? css.active : ''}>
-          <Link href={createPageHref(page)} scroll={false}>
-            {page}
-          </Link>
+          {onPageChange ? (
+            <button type="button" onClick={() => onPageChange(page)}>
+              {page}
+            </button>
+          ) : (
+            <Link href={createPageHref(page)} scroll={false}>
+              {page}
+            </Link>
+          )}
         </li>
       ))}
     </ul>
