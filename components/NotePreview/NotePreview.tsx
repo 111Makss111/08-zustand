@@ -6,6 +6,8 @@ import css from './NotePreview.module.css';
 
 interface NotePreviewProps {
   note: Note;
+  backHref?: string | null;
+  backLabel?: string;
 }
 
 function formatNoteDate(value?: string) {
@@ -25,15 +27,21 @@ function formatNoteDate(value?: string) {
   });
 }
 
-export default function NotePreview({ note }: NotePreviewProps) {
+export default function NotePreview({
+  note,
+  backHref = '/notes',
+  backLabel = 'Back to notes',
+}: NotePreviewProps) {
   const formattedDate = formatNoteDate(note.updatedAt ?? note.createdAt);
 
   return (
     <div className={css.container}>
       <article className={css.item}>
-        <Link href="/notes" className={css.backBtn}>
-          Back to notes
-        </Link>
+        {backHref ? (
+          <Link href={backHref} className={css.backBtn}>
+            {backLabel}
+          </Link>
+        ) : null}
 
         <div className={css.header}>
           <h2>{note.title}</h2>
