@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useDebounce } from 'use-debounce';
 
 import NoteList from '@/components/NoteList/NoteList';
 import Pagination from '@/components/Pagination/Pagination';
@@ -29,12 +30,10 @@ export default function NotesClient({ tag }: NotesClientProps) {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState(() => searchParams.get('search') ?? '');
-  const [debouncedSearch, setDebouncedSearch] = useState(() =>
-    (searchParams.get('search') ?? '').trim(),
-  );
   const [currentPage, setCurrentPage] = useState(() =>
     parseCurrentPage(searchParams.get('page')),
   );
+  const [debouncedSearch] = useDebounce(search.trim(), 300);
 
   useEffect(() => {
     const nextSearch = searchParams.get('search') ?? '';
@@ -43,23 +42,10 @@ export default function NotesClient({ tag }: NotesClientProps) {
     setSearch((previousValue) =>
       previousValue === nextSearch ? previousValue : nextSearch,
     );
-    setDebouncedSearch((previousValue) =>
-      previousValue === nextSearch.trim() ? previousValue : nextSearch.trim(),
-    );
     setCurrentPage((previousValue) =>
       previousValue === nextPage ? previousValue : nextPage,
     );
   }, [searchParams]);
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      setDebouncedSearch(search.trim());
-    }, 300);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [search]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -121,20 +107,25 @@ export default function NotesClient({ tag }: NotesClientProps) {
 
       {notesQuery.data ? (
         <>
-          <NoteList
-            notes={notesQuery.data.notes}
-            emptyMessage={`No notes found for the ${tag} filter.`}
-            onNoteDeleted={() => {
-              void queryClient.invalidateQueries({
-                queryKey: ['filtered-notes', tag],
-              });
-            }}
-          />
-          <Pagination
-            currentPage={notesQuery.data.page ?? currentPage}
-            totalPages={notesQuery.data.totalPages}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
+          {notesQuery.data.notes.length > 0 ? (
+            <>
+              <NoteList
+                notes={notesQuery.data.notes}
+                onNoteDeleted={() => {
+                  void queryClient.invalidateQueries({
+                    queryKey: ['filtered-notes', tag],
+                  });
+                }}
+              />
+              <Pagination
+                currentPage={notesQuery.data.page ?? currentPage}
+                totalPages={notesQuery.data.totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
+            </>
+          ) : (
+            <p>{`No notes found for the ${tag} filter.`}</p>
+          )}
         </>
       ) : null}
     </div>
